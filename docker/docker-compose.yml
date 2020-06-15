@@ -1,0 +1,49 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+    - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2182
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    depends_on:
+    - zookeeper
+    ports:
+    - "9092:9092"
+    expose:
+    - "9093"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  springstreamkafkaproducer:
+    image: sr/springstreamkafkaproducer:0.0.1
+    ports: 
+    -  "8085:8085"
+    environment:
+      SERVER_PORT: "8085"
+      KAFKASERVER_URI: "kafka"
+      ZKSERVER_URI: "kafka"
+      KAFKASERVER_PORT: "9092"
+    depends_on: 
+      - kafka
+    links:
+      - kafka
+  springstreamkafkaconsumer:
+    image: sr/springstreamkafkaconsumer:0.0.1
+    ports: 
+    -  "8086:8086"
+    environment:
+      SERVER_PORT: "8086"
+      KAFKASERVER_URI: "kafka"
+      ZKSERVER_URI: "kafka"
+      KAFKASERVER_PORT: "9092"
+    depends_on: 
+      - kafka
+    links:
+      - kafka

@@ -1,0 +1,16 @@
+server:
+  port: 8086
+spring:
+  application:
+    name: springstreamkafkaconsumer
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: kafka:9092
+          zknodes: zookeeper:2181
+      bindings:
+         greetings-in:
+            destination: greetingstopic
+            content-type: application/json
+#greetings - kafka topic we use for both the inbound and outbound streams in our code. They both must use the same Kafka topic
